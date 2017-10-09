@@ -25,19 +25,33 @@
 // limitations under the License.
 // =============================================================================
 
+`timescale 1ns/1ps
 module dff (c,d,q,rstn);
    input wire c, d,rstn;
-   output reg q = 1'b0;
+   output reg q;
 
-   always @(posedge c or negedge rstn)
-     begin
-        if(rstn == 1'b0) begin
-           q <= 1'b0;
-        end begin
-	   // It is also possible to add an delay of less than one clock period
-	   // here.
-	   q <= d;
-        end
-     end
+
+   always @(posedge c or negedge rstn) begin
+      if(rstn == 1'b0) begin
+         /*AUTORESET*/
+         // Beginning of autoreset for uninitialized flops
+         q <= 1'h0;
+         // End of automatics
+      end
+      else begin
+         q <= d;
+      end
+   end
+
+
+`ifdef COCOTB_SIM
+   initial begin
+      $dumpfile("dff.vcd");
+      $dumpvars(0, dff);
+   end
+`endif
+
+
+
 
 endmodule // dff
